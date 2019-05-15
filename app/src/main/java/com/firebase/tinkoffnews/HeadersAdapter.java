@@ -2,6 +2,7 @@ package com.firebase.tinkoffnews;
 
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,7 +93,10 @@ class HeaderInformation implements Comparable<HeaderInformation>{
 
     @Override
     public int compareTo(HeaderInformation o) {
-        if (o.getName().compareTo(name) != 0) return o.getName().compareTo(name);
+        int c = publicationDate.getMilliseconds().compareTo(o.getPublicationDate().getMilliseconds());
+        if (c != 0) {
+            return -c;
+        }
         else return id.compareTo(o.getId());
     }
 }
@@ -121,7 +125,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
         }
     }
 
-    private LinkedList<HeaderInformation> headers = new LinkedList<>();
+    private TreeSet<HeaderInformation> headers = new TreeSet<>();
 
     public void addAll(Collection<HeaderInformation> headers) {
         TreeSet<HeaderInformation> all = new TreeSet<>();
@@ -133,9 +137,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
     }
 
     public void addItem(HeaderInformation header) {
-        int i = 0;
-        while (headers.size() > i && header.compareTo(headers.get(i)) < 0) i++;
-        headers.add(i, header);
+        headers.add(header);
         notifyDataSetChanged();
     }
 
@@ -153,7 +155,13 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
 
     @Override
     public void onBindViewHolder(@NonNull HeaderViewHolder headerInformation, int i) {
-        headerInformation.bind(headers.get(i));
+        for (HeaderInformation inf: headers) {
+            if (i == 0) {
+                headerInformation.bind(inf);
+                break;
+            }
+            i--;
+        }
     }
 
     @Override
