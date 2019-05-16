@@ -115,9 +115,12 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
             String formatDate;
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(header.getPublicationDate().getMilliseconds());
+
             formatDate = c.get(Calendar.DAY_OF_MONTH) + " " +
-                    c.getDisplayName(Calendar.MONTH, Calendar.ALL_STYLES, Locale.US) + " " +
-                    c.get(Calendar.YEAR);
+                    c.getDisplayName(Calendar.MONTH, Calendar.ALL_STYLES, new Locale("ru")) + " " +
+                    c.get(Calendar.YEAR) + " в " +
+                    c.get(Calendar.HOUR_OF_DAY) + ":" + (c.get(Calendar.MINUTE) < 10 ? "0" : "") +
+                    c.get(Calendar.MINUTE);
             date.setText(formatDate);
             id = header.getId();
         }

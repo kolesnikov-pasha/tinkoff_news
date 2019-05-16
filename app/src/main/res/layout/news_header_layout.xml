@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
+    android:background="@drawable/header_background"
     android:orientation="vertical">
 
     <TextView
@@ -18,7 +19,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="Тинькофф Банк начинает сотрудничество с кафедрой математических и компьютерных методов анализа мехмата МГУ"/>
-
+        android:textColor="@color/colorPrimaryDark" />
 </LinearLayout>

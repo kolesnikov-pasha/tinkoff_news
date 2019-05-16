@@ -166,7 +166,6 @@ public class NewsActivity extends AppCompatActivity {
         text = findViewById(R.id.content_text);
         refreshLayout = findViewById(R.id.content_refresh);
         refreshLayout.setOnRefreshListener(this::getContent);
-        refreshLayout.setRefreshing(true);
         getContent();
     }
 }
