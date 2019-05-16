@@ -1,10 +1,15 @@
 package com.firebase.tinkoffnews;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -53,31 +58,41 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recycler;
     HeadersAdapter adapter = new HeadersAdapter();
 
-    void refresh() {
-        Observable.create((ObservableOnSubscribe<HeaderInformation>) emitter -> {
-            adapter.clear();
+    Observable<HeaderInformation> getHeadersStream(){
+        return Observable.create(emitter -> {
+            long t = System.currentTimeMillis();
             Gson gson = new Gson();
             StringBuilder text = new StringBuilder();
             InputStream in = new URL("https://api.tinkoff.ru/v1/news").openStream();
             Scanner scanner = new Scanner(in);
             while (scanner.hasNext()) text.append(scanner.nextLine());
             Headers headers = gson.fromJson(text.toString(), Headers.class);
+            emitter.onNext(new HeaderInformation(-1, 1, "", "", new Data(0L)));
             for (HeaderInformation information : headers.payload) {
-                information.setText(information.getText().replaceAll("\\u0026nbsp;", "\u00A0"));
-                information.setText(information.getText().replaceAll("\\u0026laquo;", "«"));
-                information.setText(information.getText().replaceAll("\\u0026raquo;", "»"));
-                information.setText(information.getText().replaceAll("\\u0026mdash;", "—"));
-                information.setText(information.getText().replaceAll("<nobr>", ""));
-                information.setText(information.getText().replaceAll("</nobr>", ""));
                 emitter.onNext(information);
             }
             emitter.onComplete();
-        })
+            System.out.println("Time: " + (System.currentTimeMillis() - t));
+        });
+    }
+
+    void refresh() {
+        getHeadersStream()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(headerInformation -> adapter.addItem(headerInformation))
-                .doOnError(throwable -> throwable.printStackTrace())
-                .doOnComplete(()->refreshLayout.setRefreshing(false)).subscribe();
+                .doOnNext(information -> {
+                    if (information.getId().equals(-1)) {
+                        adapter.clear();
+                        return;
+                    }
+                    adapter.addItem(information);
+                })
+                .doOnError((throwable) -> {
+                    refreshLayout.setRefreshing(false);
+                    Toast.makeText(getApplicationContext(), "Проверьте подключение к интернету", Toast.LENGTH_LONG).show();
+                })
+                .doOnComplete(()->refreshLayout.setRefreshing(false))
+                .subscribe();
     }
 
     @Override

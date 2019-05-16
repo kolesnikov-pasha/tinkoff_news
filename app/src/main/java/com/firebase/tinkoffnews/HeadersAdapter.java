@@ -1,9 +1,11 @@
 package com.firebase.tinkoffnews;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +96,7 @@ class HeaderInformation implements Comparable<HeaderInformation>{
     @Override
     public int compareTo(HeaderInformation o) {
         int c = publicationDate.getMilliseconds().compareTo(o.getPublicationDate().getMilliseconds());
-        if (c != 0) {
+        if (c != 0 && id.compareTo(o.getId()) != 0) {
             return -c;
         }
         else return id.compareTo(o.getId());
@@ -105,10 +107,11 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {
 
+        private Integer id;
         private TextView text, date;
 
         public void bind(HeaderInformation header){
-            text.setText(header.getText());
+            text.setText(Html.fromHtml(header.getText()));
             String formatDate;
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(header.getPublicationDate().getMilliseconds());
@@ -116,13 +119,20 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
                     c.getDisplayName(Calendar.MONTH, Calendar.ALL_STYLES, Locale.US) + " " +
                     c.get(Calendar.YEAR);
             date.setText(formatDate);
+            id = header.getId();
         }
 
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.text);
             date = itemView.findViewById(R.id.publication_date);
+            itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(itemView.getContext(), NewsActivity.class);
+                intent.putExtra("ID", id);
+                itemView.getContext().startActivity(intent);
+            });
         }
+
     }
 
     private TreeSet<HeaderInformation> headers = new TreeSet<>();
@@ -149,7 +159,8 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
     @NonNull
     @Override
     public HeaderViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.news_header_layout, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.news_header_layout, viewGroup, false);
         return new HeaderViewHolder(v);
     }
 
