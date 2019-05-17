@@ -1,23 +1,25 @@
 package com.firebase.tinkoffnews;
 
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.tinkoffnews.network.TinkoffAPI;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Scanner;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class NewsActivity extends AppCompatActivity {
@@ -129,40 +131,41 @@ public class NewsActivity extends AppCompatActivity {
     SwipeRefreshLayout refreshLayout;
     TextView text;
 
-    void getContent(){
-        Observable.create((ObservableOnSubscribe<Content>) emitter -> {
+    Observable<Content> getContentStream() {
+        return Observable.create(emitter -> {
             long t = System.currentTimeMillis();
             Gson gson = new Gson();
-            StringBuilder text = new StringBuilder();
             try {
-                InputStream in = new URL("https://api.tinkoff.ru/v1/news_content?id=" + id).openStream();
-                Scanner scanner = new Scanner(in);
-                while (scanner.hasNext()) text.append(scanner.nextLine());
-                Content content = gson.fromJson(text.toString(), Content.class);
+                String text = TinkoffAPI.getNews(id);
+                Content content = gson.fromJson(text, Content.class);
                 emitter.onNext(content);
-                emitter.onComplete();
                 System.out.println("Time: " + (System.currentTimeMillis() - t));
+                emitter.onComplete();
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 emitter.onError(e);
             }
-        }).observeOn(AndroidSchedulers.mainThread())
-        .subscribeOn(Schedulers.io())
-        .doOnNext(content -> {
-            text.setText(Html.fromHtml(content.payload.content));
-        }).doOnError((throwable) -> {
-            refreshLayout.setRefreshing(false);
-            Toast.makeText(getApplicationContext(), "Проверьте подключение к интернету", Toast.LENGTH_LONG).show();
-        })
-        .doOnComplete(() -> refreshLayout.setRefreshing(false))
-        .subscribe();
+        });
+    }
+
+    void getContent(){
+        getContentStream()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(content -> text.setText(Html.fromHtml(content.getPayload().getContent())),
+                    (throwable) -> {
+                        refreshLayout.setRefreshing(false);
+                        Log.e("get news error", throwable.getMessage());
+                        Toast.makeText(getApplicationContext(), "Проверьте подключение к интернету", Toast.LENGTH_LONG).show();
+                    },
+                    () -> refreshLayout.setRefreshing(false));
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
-        id  = getIntent().getExtras().getInt("ID");
+        id  = Objects.requireNonNull(getIntent().getExtras()).getInt("ID");
         text = findViewById(R.id.content_text);
         refreshLayout = findViewById(R.id.content_refresh);
         refreshLayout.setOnRefreshListener(this::getContent);

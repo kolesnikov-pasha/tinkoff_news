@@ -1,9 +1,7 @@
-package com.firebase.tinkoffnews;
+package com.firebase.tinkoffnews.adapters;
 
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.support.annotation.NonNull;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -11,97 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.firebase.tinkoffnews.NewsActivity;
+import com.firebase.tinkoffnews.R;
+import com.firebase.tinkoffnews.models.Title;
+
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Locale;
 import java.util.TreeSet;
 
-class Data {
-    private Long milliseconds;
-
-    public Data(Long milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
-    public Data() {
-    }
-
-    public Long getMilliseconds() {
-        return milliseconds;
-    }
-
-    public void setMilliseconds(Long milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-}
-
-class HeaderInformation implements Comparable<HeaderInformation>{
-
-    private Integer id, bankInfoTypeId;
-    private String name, text;
-    private Data publicationDate;
-
-    public HeaderInformation() { }
-
-    public HeaderInformation(Integer id, Integer bankInfoTypeId, String name, String text, Data publicationDate) {
-        this.id = id;
-        this.bankInfoTypeId = bankInfoTypeId;
-        this.name = name;
-        this.text = text;
-        this.publicationDate = publicationDate;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getBankInfoTypeId() {
-        return bankInfoTypeId;
-    }
-
-    public void setBankInfoTypeId(Integer bankInfoTypeId) {
-        this.bankInfoTypeId = bankInfoTypeId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Data getPublicationDate() {
-        return publicationDate;
-    }
-
-    public void setPublicationDate(Data publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    @Override
-    public int compareTo(HeaderInformation o) {
-        int c = publicationDate.getMilliseconds().compareTo(o.getPublicationDate().getMilliseconds());
-        if (c != 0 && id.compareTo(o.getId()) != 0) {
-            return -c;
-        }
-        else return id.compareTo(o.getId());
-    }
-}
 
 public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderViewHolder> {
 
@@ -110,7 +26,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
         private Integer id;
         private TextView text, date;
 
-        public void bind(HeaderInformation header){
+        void bind(Title header){
             text.setText(Html.fromHtml(header.getText()));
             String formatDate;
             Calendar c = Calendar.getInstance();
@@ -125,7 +41,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
             id = header.getId();
         }
 
-        public HeaderViewHolder(@NonNull View itemView) {
+        HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.text);
             date = itemView.findViewById(R.id.publication_date);
@@ -138,10 +54,10 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
 
     }
 
-    private TreeSet<HeaderInformation> headers = new TreeSet<>();
+    private TreeSet<Title> headers = new TreeSet<>();
 
-    public void addAll(Collection<HeaderInformation> headers) {
-        TreeSet<HeaderInformation> all = new TreeSet<>();
+    public void addAll(Collection<Title> headers) {
+        TreeSet<Title> all = new TreeSet<>();
         all.addAll(this.headers);
         all.addAll(headers);
         this.headers.clear();
@@ -149,7 +65,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
         notifyDataSetChanged();
     }
 
-    public void addItem(HeaderInformation header) {
+    public void addItem(Title header) {
         headers.add(header);
         notifyDataSetChanged();
     }
@@ -169,7 +85,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
 
     @Override
     public void onBindViewHolder(@NonNull HeaderViewHolder headerInformation, int i) {
-        for (HeaderInformation inf: headers) {
+        for (Title inf: headers) {
             if (i == 0) {
                 headerInformation.bind(inf);
                 break;
