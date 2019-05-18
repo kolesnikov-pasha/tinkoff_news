@@ -1,9 +1,9 @@
 package com.firebase.tinkoffnews.models;
 
 public class Payload {
-    Object creationDate, lastModificationDate, bankInfoTypeId, typeId;
-    String content;
-    Title title;
+    private Object creationDate, lastModificationDate, bankInfoTypeId, typeId;
+    private String content;
+    private Title title;
 
     public Payload(Object creationDate, Object lastModificationDate, Title title, Object bankInfoTypeId, Object typeId, String content) {
         this.creationDate = creationDate;

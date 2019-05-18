@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tinkoff News</string>
+    <string name="check_internet">Проверьте подключение к интернету</string>
 </resources>
