@@ -14,8 +14,9 @@
         android:text="01.01.1970 00:01"/>
 
     <TextView
+        android:textStyle="bold"
         android:id="@+id/text"
-        android:paddingTop="8dp"
+        android:paddingTop="2dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"

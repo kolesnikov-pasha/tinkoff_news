@@ -9,8 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.firebase.tinkoffnews.NewsActivity;
+import com.firebase.tinkoffnews.MainActivity;
 import com.firebase.tinkoffnews.R;
+import com.firebase.tinkoffnews.fragments.NewsFragment;
 import com.firebase.tinkoffnews.models.Title;
 
 import java.util.Calendar;
@@ -19,7 +20,7 @@ import java.util.Locale;
 import java.util.TreeSet;
 
 
-public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderViewHolder> {
+public class TitlesAdapter extends RecyclerView.Adapter<TitlesAdapter.HeaderViewHolder> {
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {
 
@@ -41,14 +42,17 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
             id = header.getId();
         }
 
-        HeaderViewHolder(@NonNull View itemView) {
+        public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.text);
             date = itemView.findViewById(R.id.publication_date);
             itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(itemView.getContext(), NewsActivity.class);
-                intent.putExtra("ID", id);
-                itemView.getContext().startActivity(intent);
+                NewsFragment fragment = new NewsFragment();
+                fragment.setId(id);
+                ((MainActivity) itemView.getContext()).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame, fragment)
+                        .addToBackStack("news")
+                        .commit();
             });
         }
 
@@ -79,7 +83,7 @@ public class HeadersAdapter extends RecyclerView.Adapter<HeadersAdapter.HeaderVi
     @Override
     public HeaderViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.news_header_layout, viewGroup, false);
+                .inflate(R.layout.title_layout, viewGroup, false);
         return new HeaderViewHolder(v);
     }
 

@@ -6,16 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
 
-import com.firebase.tinkoffnews.adapters.HeadersAdapter;
-import com.firebase.tinkoffnews.models.*;
+import com.firebase.tinkoffnews.adapters.TitlesAdapter;
+import com.firebase.tinkoffnews.models.AllTitlesModel;
+import com.firebase.tinkoffnews.models.Date;
+import com.firebase.tinkoffnews.models.Title;
 import com.firebase.tinkoffnews.network.TinkoffAPI;
 import com.google.gson.Gson;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Scanner;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -26,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     SwipeRefreshLayout refreshLayout;
     RecyclerView recycler;
-    HeadersAdapter adapter = new HeadersAdapter();
+    TitlesAdapter adapter = new TitlesAdapter();
 
     Observable<Title> getHeadersStream(){
         return Observable.create(emitter -> {
@@ -75,4 +74,11 @@ public class MainActivity extends AppCompatActivity {
         refreshLayout.setRefreshing(true);
         refresh();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) finish();
+        else getSupportFragmentManager().popBackStack();
+    }
+
 }
